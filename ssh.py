@@ -3,27 +3,55 @@ import os.path as path
 
 
 class Sshpass(object):
-    def __init__(self, subcommand, password, server):
-        self.subcommand = subcommand
+    def __init__(self, password, server, user, host, subcommand = None):
         self.password = password
         self.server = server
+        self.user = user
+        self.host = host
+        self.subcommand = subcommand
+        self.key = None
+
+        
+    @property
+    def get_subcommand(self):
+        return self.subcommand
+
     
-    def __call__(self):
+    @property.setter
+    def set_subcommand(self, sub):
+        self.subcommand = sub
+        return self
+
+    
+    @property
+    def get_password(self):
+        return self.password
+
+
+    @property.setter
+    def set_password(self, passwd):
+        self.password = passwd
+        return self
+    
+
+class SshSubcommand(Sshpass):
+    def __init__(self, command):
+        super(SshSubcommand, self).__init__(subcommand = 'ssh')
+        self.command = command
+
+
+    def execute(self):
         if path.isfile(self.password):
-            return self.pass_from_file(self.password, self.subcommand, self.server)
+            self.key = '-p'
         else:
-            return self.pass_from_cmd(self.password, self.subcommand, self.server)
-
-    @staticmethod
-    def pass_from_file(password, subcommand, server):
-        with Popen(['sshpass', '-f', password, subcommand, server], 
-                        stdout=PIPE, stderr=PIPE) as proc:
+            self.key = '-f'
+        with Popen(['sshpass', self.key, self.password, self.subcommand,
+                        self.server, self.command], stdout=PIPE, stderr=PIPE) as proc:
             stdout, stderr = proc.communicate()
         return stdout, stderr
 
-    @staticmethod
-    def pass_from_cmd(password, subcommand, server):
-        with Popen(['sshpass', '-p', password, subcommand, server], 
-                        stdout=PIPE, stderr=PIPE) as proc:
-            stdout, stderr = proc.communicate()
-        return stdout, stderr
+
+class ScpSubcommand(Sshpass):
+    def __init__(self, local_path):
+        super(ScpSubcommand, self).__init__(subcommand = 'scp')
+        self.local_path = local_path
