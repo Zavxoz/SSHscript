@@ -16,8 +16,7 @@ class IperfParser(BaseParser):
         self.template = (r'(?P<first>\S+-\s*\S+ \w+)\s*'
                          r'(?P<second>\S+ \w+)\s*'
                          r'(?P<third>\S+ \w+/\w+)')
-        
-        
+                
 
     def parse(self):
         data = re.compile(self.template)

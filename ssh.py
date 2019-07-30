@@ -48,7 +48,11 @@ class SshSubcommand(Sshpass):
         with Popen(['sshpass', self.key, self.password, self.subcommand,
                         self.server, self.command], stdout=PIPE, stderr=PIPE) as proc:
             stdout, stderr = proc.communicate()
-        return stdout, stderr
+            return_code = proc.returncode
+            if stdout:
+                return stdout, stderr, return_code, 0
+            else:
+                return stdout, stderr, return_code, 1
 
 
 class ScpSubcommand(Sshpass):
