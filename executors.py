@@ -10,7 +10,8 @@ class BaseCommandExcutor(object):
 
 class SshpassCommandExecutor(BaseCommandExecutor):
     def __init__(self, command):
-        return super(SshpassCommandExecutor,self).__init__(command)        
+        return super(SshpassCommandExecutor,self).__init__(command)
+
 
     def execute(self):
         data = Popen(self.command_to_execute, stdout=PIPE, stderr=PIPE)
