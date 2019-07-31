@@ -1,5 +1,6 @@
 from subprocess import PIPE, Popen
 from iperf_parser import IperfParser, BaseParser
+import json
 
 
 class BaseCommandExcutor(object):
@@ -17,12 +18,19 @@ class IperfCommandExecutor(BaseCommandExecutor):
         data = Popen(self.command_to_execute, stdout=PIPE, stderr=PIPE)
         output_data, error = data.communicate()
         return_code = data.returncode
-        if output_data:
-            return_code_of_execution = int(output_data.split()[-1])
-        else:
-            return_code_of_execution = 0
         parsed_output = self.parser(output_data).parse()
         if return_code == 0:
-            return parsed_output, str(error), return_code, return_code_of_execution
+            return self.result(parsed_output, str(error), return_code)
         else:
-            return None, str(error), return_code, return_code_of_execution#############need to finish
+            return self.result(None, str(error), return_code)
+
+
+    def result(output, error, exit_code, ):
+        data_as_dict = {
+            'error': str(error),
+            'result': output,
+            'status': exit_code
+        }
+        json_data = json.dumps(data_as_dict, sort_keys=True,
+                               indent=4, separators=(',', ': '))
+        return json_data
