@@ -33,4 +33,5 @@ class IperfCommandExecutor(BaseCommandExecutor):
         }
         json_data = json.dumps(data_as_dict, sort_keys=True,
                                indent=4, separators=(',', ': '))
+
         return json_data
