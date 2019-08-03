@@ -1,7 +1,38 @@
 import argparse
 import re
 import sys
+from iperf_command import IperfClientCommand, IperfServerCommand
+from sshpass import SshSubcommand
 
+
+def validation(args):
+    try:
+        if args[1]!='client':
+            raise Exception('Wrong format of arguments, expect word "client" before ' 
+                                        'arguments for client')
+        if args[8]!='server':
+            raise Exception('Wrong format of arguments, expect word "server" before ' 
+                                        'arguments for server')
+        example_of_host='^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$'
+        example_of_username='^[a-z_][a-z0-9_-]{1,15}$'
+        rg_addr = re.compile(example_of_host,re.IGNORECASE|re.DOTALL)
+        r1 = rg_addr.search(args[7])
+        r2 = rg_addr.search(args[14])
+        if not r1:
+            raise Exception('Wrong ip addres or hostname of client')
+        if not r2:
+            raise Exception('Wrong ip addres or hostname of server')
+        rg_user = re.compile(example_of_username, re.IGNORECASE|re.DOTALL)
+        r1 = rg_user.search(args[3])
+        r2 = rg_user.search(args[10])
+        if not r1:
+            raise Exception('Invalid username of client, check spelling of username')
+        if not r2:
+            raise Exception('Invalid username of server, check spelling of username')
+    except Exception as ex:
+        print(ex)
+        return 1
+        
 
 def parse_args():
     parser = argparse.ArgumentParser(description = "Tool for measuring bandwidth\
@@ -26,16 +57,26 @@ def parse_args():
     return args_for_client, args_for_server
 
 
-def main():
-    if sys.argv[1]!='client':
-        raise Exception('You did not specify data for the client')
-    if sys.argv[8]!='server':
-        raise Exception('You did not specify data for the server')
-    else:
-        args_for_client, agrs_for_server = parse_args()
-        
+def initialization(init_object, args):
+    init_object.password = args.passwd_server
+    init_object.user = args.username_server
+    init_object.server = args.server_addr
 
-    
+def main():
+    try:
+        validation(sys.argv)   
+        args_for_client, args_for_server = parse_args()
+        iperf_client = IperfClientCommand()
+        iperf_client.ip = args_for_server.server_addr
+        command_to_client = iperf_client.build_command()
+        command_to_server = IperfServerCommand().build_command()
+        server = initialization(SshSubcommand(command_to_server), args_for_server)
+        server.execute()
+        client = initialization(SshSubcommand(command_to_client), args_for_client)
+        client.execute()
+    except Exception as ex:
+        print(ex)
+         
     
 
 if __name__ == "__main__":

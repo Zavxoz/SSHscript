@@ -1,5 +1,5 @@
 from subprocess import PIPE, Popen
-from iperf_parser import IperfParser, BaseParser
+from parsers import IperfParser, BaseParser
 import json
 
 

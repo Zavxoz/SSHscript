@@ -3,36 +3,43 @@ import os.path as path
 
 
 class Sshpass(object):
-    def __init__(self, password, server, user, host, subcommand = None):
-        self.password = password
-        self.server = server
-        self.user = user
-        self.host = host
+    def __init__(self, subcommand = None):
+        self._password = None
+        self._server = None
+        self._user = None
         self.subcommand = subcommand
         self.key = None
+    
 
+    @property
+    def password(self):
+        return self._password
+
+
+    @password.setter
+    def password(self, passwd):
+        self._password = "'"+passwd+"'"
+
+
+    @property
+    def server(self):
+        return self._server
+
+
+    @server.setter
+    def server(self, server):
+        self._server = server
+
+
+    @property
+    def user(self):
+        return self._user
+
+
+    @user.setter
+    def user(self, user):
+        self._user = user
         
-    @property
-    def get_subcommand(self):
-        return self.subcommand
-
-    
-    @property.setter
-    def set_subcommand(self, sub):
-        self.subcommand = sub
-        return self
-
-    
-    @property
-    def get_password(self):
-        return self.password
-
-
-    @property.setter
-    def set_password(self, passwd):
-        self.password = passwd
-        return self
-    
 
 class SshSubcommand(Sshpass):
     def __init__(self, command):
@@ -42,11 +49,12 @@ class SshSubcommand(Sshpass):
 
     def execute(self):
         if path.isfile(self.password):
-            self.key = '-p'
-        else:
             self.key = '-f'
+        else:
+            self.key = '-p'
+        fullname = self.user + '@' + self.server
         with Popen(['sshpass', self.key, self.password, self.subcommand,
-                        self.server, self.command], stdout=PIPE, stderr=PIPE) as proc:
+                        fullname, self.command], stdout=PIPE, stderr=PIPE) as proc:
             stdout, stderr = proc.communicate()
             return_code = proc.returncode
             if stdout:
