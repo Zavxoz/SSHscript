@@ -3,6 +3,7 @@ import re
 import sys
 from iperf_command import IperfClientCommand, IperfServerCommand
 from sshpass import SshSubcommand
+import json
 
 
 def validation(args):
@@ -61,6 +62,20 @@ def initialization(init_object, args):
     init_object.password = args.passwd_server
     init_object.user = args.username_server
     init_object.server = args.server_addr
+    return init_object
+
+
+def result(parsed_dict, error, exit_code):
+    data_as_dict = {
+            'error': str(error),
+            'result': parsed_dict,
+            'status': exit_code
+        }
+    json_data = json.dumps(data_as_dict, sort_keys=True,
+                            indent=4, separators=(',', ': '))
+
+    return json_data
+
 
 def main():
     try:
@@ -73,10 +88,11 @@ def main():
         server = initialization(SshSubcommand(command_to_server), args_for_server)
         server.execute()
         client = initialization(SshSubcommand(command_to_client), args_for_client)
-        client.execute()
+        output, error, exit_code = client.execute()
+        output_dict = iperf_client.parse(output)
+        result(output_dict, error, exit_code)
     except Exception as ex:
         print(ex)
-         
     
 
 if __name__ == "__main__":
