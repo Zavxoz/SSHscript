@@ -7,16 +7,14 @@ class IperfCommandBase(object):
         self.command = 'iperf3'
         self.mode = mode
 
-
     def build_command(self):
         return self.command
-
 
     def parse(self, string):
         parametres = ['Interval', 'Transfer', 'Bandwidth']
         template = (r'(?P<first>\S+-\s*\S+ \w+)\s*'
-                         r'(?P<second>\S+ \w+)\s*'
-                         r'(?P<third>\S+ \w+/\w+)')
+                    r'(?P<second>\S+ \w+)\s*'
+                    r'(?P<third>\S+ \w+/\w+)')
         output_dict = {}
         data = re.compile(template)
         matched_data = re.findall(data, string)
@@ -27,7 +25,7 @@ class IperfCommandBase(object):
             for name in self.column_names:
                 dict_to_insert[name] = single_match[i]
                 i += 1
-            if j < len(matched_data)-1:
+            if j < len(matched_data) - 1:
                 interval_key = "Interval {}: {}".format(j, single_match[0])
             else:
                 interval_key = "Average value:"
@@ -39,7 +37,6 @@ class IperfCommandBase(object):
 class IperfServerCommand(IperfCommandBase):
     def __init__(self):
         return super(IperfServerCommand, self).__init__(mode='-s')
-        
 
     def build_command(self):
         cmd = f'{self.command} {self.mode}'
@@ -51,17 +48,13 @@ class IperfClientCommand(IperfCommandBase):
         return super(IperfClientCommand, self).__init__(mode='-c')
         self._ip = None
 
-
     @property
     def ip(self):
         return self._ip
 
-    
     @ip.setter
     def ip(self, value):
         self._ip = value
 
-    
     def build_command(self):
         return f'{self.command} {self. mode} {self.ip}'
-
