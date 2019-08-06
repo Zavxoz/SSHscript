@@ -37,7 +37,7 @@ class Sshpass(object):
 
 class SshSubcommand(Sshpass):
     def __init__(self, command):
-        super(SshSubcommand, self).__init__(subcommand='ssh')
+        super().__init__(subcommand='ssh')
         self._command = command
 
     def new_command(self, new_command):
@@ -49,14 +49,14 @@ class SshSubcommand(Sshpass):
         else:
             self.key = '-p'
         fullname = self.user + '@' + self.server
-        with Popen(['sshpass', self.key, self.password, self.subcommand,
-                    fullname, self._command], stdout=PIPE, stderr=PIPE) as proc:
-            stdout, stderr = proc.communicate()
-            return_code = proc.returncode
-            if stdout:
-                return stdout, stderr, return_code
-            else:
-                return stdout, stderr, return_code
+        proc = Popen(['sshpass', self.key, self.password, self.subcommand,
+                    fullname, self._command], stdout=PIPE, stderr=PIPE)
+        stdout, stderr = proc.communicate()
+        return_code = proc.returncode
+        if stdout:
+            return stdout, stderr, return_code
+        else:
+            return stdout, stderr, return_code
 
 
 class ScpSubcommand(Sshpass):

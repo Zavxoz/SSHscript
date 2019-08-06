@@ -36,7 +36,7 @@ class IperfCommandBase(object):
 
 class IperfServerCommand(IperfCommandBase):
     def __init__(self):
-        return super(IperfServerCommand, self).__init__(mode='-s')
+        return super().__init__(mode='-s')
 
     def build_command(self):
         cmd = f'{self.command} {self.mode}'
@@ -45,7 +45,7 @@ class IperfServerCommand(IperfCommandBase):
 
 class IperfClientCommand(IperfCommandBase):
     def __init__(self, mode=None):
-        return super(IperfClientCommand, self).__init__(mode='-c')
+        return super().__init__(mode='-c')
         self._ip = None
 
     @property
