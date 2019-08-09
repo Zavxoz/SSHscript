@@ -46,15 +46,15 @@ class IperfServerCommand(IperfCommandBase):
 class IperfClientCommand(IperfCommandBase):
     def __init__(self, mode=None):
         return super().__init__(mode='-c')
-        self._ip = None
+        self._address = None
 
     @property
-    def ip(self):
+    def adress(self):
         return self._ip
 
-    @ip.setter
-    def ip(self, value):
-        self._ip = value
+    @address.setter
+    def address(self, value):
+        self._address = value
 
     def build_command(self):
         return f'{self.command} {self. mode} {self.ip}'

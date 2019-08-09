@@ -9,6 +9,9 @@ from check_errors import MyError, timeout
 
 def validation(args):
     try:
+        numb_of_missing_arguments = 15 - len(args)
+        if numb_of_missing_arguments:
+            raise MyError(f'{numb_of_missing_arguments} arguments are missing, please check input data', 5)
         if args[1] != 'client':
             raise MyError('Wrong format of arguments, expect word "client" before '
                             'arguments for client', 1)
@@ -79,13 +82,12 @@ def make_result(parsed_dict, error, exit_code):
     return json_data
 
 
-def kill_iperf():
-    client_args, server_args = parse_args()
-    result = command_executor('"pkill -9 iperf3 echo $?"', server_args)
+def kill_iperf(args):
+    result = command_executor('"pkill -9 iperf3"', args)
     return result
 
 
-@timeout(1)
+@timeout(30)
 def command_executor(command_to_execute, args):
     command = initialization(SshSubcommand(command_to_execute), args)
     output, error, exit_code = command.execute()
@@ -99,7 +101,7 @@ def main():
         command_to_server = IperfServerCommand().build_command()
         command_executor(command_to_server, args_for_server)
         iperf_client = IperfClientCommand()
-        iperf_client.ip = args_for_server.addr_server
+        iperf_client.address = args_for_server.addr_server
         command_to_client = iperf_client.build_command()
         output, error, exit_code = command_executor(command_to_client, args_for_client)   
         output_dict = iperf_client.parse(output)
@@ -107,12 +109,12 @@ def main():
         with open('result.json', 'w') as f:
             f.write(result)
     except MyError as ex:
-        print(ex)
+        print(ex.message)
         sys.exit(ex.exit_code)
     finally:
-        finish_result = kill_iperf()
+        finish_result = kill_iperf(args_for_server)
         if finish_result.exit_code:
-            print("Can't kill iperf process on the server")
+            raise MyError("Can't kill iperf process on the server")
 
 
 if __name__ == "__main__":
