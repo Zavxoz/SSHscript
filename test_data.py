@@ -80,7 +80,7 @@ ARGS_INPUT = argparse.Namespace(
             server_username='root', time=None, udp=False)
 
 CONNECTION1 = ResultBuilderWithExecutionExitCode(IPERF_PARSER_EXPECTED_RESULT,
-                                                 OK_MESSAGE,
+                                OK_MESSAGE,
                                                  OK_RETURN_CODE,
                                                  OK_RETURN_CODE)
 CONNECTION2 = ResultBuilderWithExecutionExitCode(IPERF_PARSER_EXPECTED_RESULT,

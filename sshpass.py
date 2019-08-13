@@ -16,7 +16,7 @@ class Sshpass(object):
 
     @password.setter
     def password(self, passwd):
-        self._password = "'" + passwd + "'"
+        self._password = passwd
 
     @property
     def server(self):
