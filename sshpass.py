@@ -16,7 +16,7 @@ class Sshpass(object):
 
     @password.setter
     def password(self, passwd):
-        self._password = passwd
+        self._password = "'"+passwd+"'"
 
     @property
     def server(self):
@@ -38,10 +38,10 @@ class Sshpass(object):
 class SshSubcommand(Sshpass):
     def __init__(self, command):
         super().__init__(subcommand='ssh')
-        self._command = command
+        self._command = "'"+command+"'"
 
     def new_command(self, new_command):
-        self._command = new_command
+        self._command = "'"+new_command+"'"
 
     def execute(self):
         if path.isfile(self.password):
@@ -53,6 +53,7 @@ class SshSubcommand(Sshpass):
                     fullname, self._command], stdout=PIPE, stderr=PIPE)
         stdout, stderr = proc.communicate()
         return_code = proc.returncode
+        print(stdout, stderr, return_code)
         if stdout:
             return stdout, stderr, return_code
         else:

@@ -19,7 +19,7 @@ def validation(args):
             raise MyError('Wrong format of arguments, expect word "server" before '
                             'arguments for server', 2)
         example_of_host = r'^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$|^(([a-zA-Z0-9]|[a-zA-Z0-9][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)+([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$'
-        example_of_username = '^[a-z_][a-z0-9_-]{1,15}$'
+        example_of_username = '[a-z0-9_-]'
         rg_addr = re.compile(example_of_host, re.IGNORECASE | re.DOTALL)
         r1 = rg_addr.search(args[7])
         r2 = rg_addr.search(args[14])
@@ -37,7 +37,7 @@ def validation(args):
             raise MyError(
                 'Invalid username of server, check spelling of username', 2)
     except MyError as ex:
-        print(ex)
+        print(ex.message)
         sys.exit(ex.exit_code)
 
 
@@ -72,7 +72,7 @@ def initialization(init_object, args):
 
 def make_result(parsed_dict, error, exit_code):
     data_as_dict = {
-        'error': str(error),
+        'error': error.decode("utf-8"),
         'result': parsed_dict,
         'status': exit_code
     }
@@ -113,8 +113,8 @@ def main():
         sys.exit(ex.exit_code)
     finally:
         finish_result = kill_iperf(args_for_server)
-        if finish_result.exit_code:
-            raise MyError("Can't kill iperf process on the server")
+        if finish_result[2]:
+            raise MyError("Can't kill iperf process on the server", 6)
 
 
 if __name__ == "__main__":

@@ -17,7 +17,7 @@ class IperfCommandBase(object):
                     r'(?P<third>\S+ \w+/\w+)')
         output_dict = {}
         data = re.compile(template)
-        matched_data = re.findall(data, string)
+        matched_data = re.findall(data, string.decode("utf-8"))
         j = 1
         for single_match in matched_data:
             i = 0
@@ -49,12 +49,12 @@ class IperfClientCommand(IperfCommandBase):
         self._address = None
 
     @property
-    def adress(self):
-        return self._ip
+    def address(self):
+        return self._address
 
     @address.setter
     def address(self, value):
         self._address = value
 
     def build_command(self):
-        return f'{self.command} {self. mode} {self.ip}'
+        return f'{self.command} {self. mode} {self.address}'
